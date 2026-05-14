@@ -90,17 +90,23 @@ if ([string]::IsNullOrWhiteSpace($wowPath) -or -not (Test-Path $wowPath)) {
 # 2. API Check
 try {
     $apiResponse = Invoke-RestMethod -Uri "https://api.tukui.org/v1/addon/elvui" -UserAgent "Mozilla/5.0"
-    if ($lastVersion -eq $apiResponse.version) { 
-        #Write-Host "[i] ElvUI ist bereits auf dem neuesten Stand ($lastVersion)." -ForegroundColor Gray
+    $currentVersion = $apiResponse.version 
+    
+    if ($lastVersion -eq $currentVersion) { 
+        # Ausgabe für die Konsole
+        Write-Host "Aktuelle Version:" -ForegroundColor Gray
+        Write-Host $currentVersion -ForegroundColor White
+        
+        # Aufräumen
         if (Test-Path $tempZip) { Remove-Item $tempZip -Force }
         if (Test-Path $tempExtract) { Remove-Item $tempExtract -Recurse -Force }
-        [System.Environment]::Exit(0)
+        
+        [System.Environment]::Exit(0) 
     }
     $realDownloadUrl = $apiResponse.url
-    $currentVersion = $apiResponse.version
 } catch { 
     Write-Host "[!] Fehler beim Abrufen der API-Daten." -ForegroundColor Red
-    exit 
+    exit 1
 }
 
 # 3. Download & Installation
